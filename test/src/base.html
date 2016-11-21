@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <title>{% block title %}{% endblock %} - 万向科技</title>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Language" content="zh-cn"/>
+    <meta name="description" content="{% block description %}{{.COMPANY_NAME_SHORT}}{% endblock %}"/>
+    <meta name="keywords" content="{% block keywords %}万向科技{% endblock %}"/>
+    <meta name="google-site-verification" content="j57PKFkYFRWiPXu81SB1dcz0U26Y5m1QB5apn_MDZjw" />
+    <meta name="baidu-site-verification" content="8uCraxkHhH" />
+    <meta name="author" content="{% block author %}{{.COMPANY_NAME_SHORT}}{% endblock %}"/>
+    <meta name="copyright" content="Copyright (C) {% current_time "
+    %Y" %} {{.COMPANY_NAME_SHORT}} All rights reserved." />
+    <meta name="google-site-verification"/>
+    <meta name="robots" content="all"/>
+
+    <link rel="icon" href="/{{.static}}/src/img/icon.ico"/>
+    <script type="text/javascript" src=""></script>
+    <link rel="stylesheet" type="text/css" href="/{{.static}}/lib/dojo/resources/dojo.css"/>
+<link rel="stylesheet" type="text/css" href="/{{.static}}/lib/dijit/themes/claro/claro.css"/>
+<link rel="stylesheet" type="text/css" href="/{{.static}}/lib/dijit/themes/claro/document.css"/>
+        <link rel="stylesheet" type="text/css" href="/{{.static}}/src/css/base.css"/>
+    <script type="text/javascript">
+        // 必须在加载DOJO。JS前
+        var dojoConfig = {
+
+            //Timeout after 10 seconds
+            // waitSeconds: 10,
+            //Get "fresh" resources 如果为true，添加时间值到每个模块URL中作为querystring避免模块缓存。
+            //   cacheBust: false, //定义Dojo核心是否异步加载  True 将导致无法Debug
+            //	 async: true,
+
+            parseOnLoad: true
+            // isDebug: false,
+            //baseUrl:"./{{.static}}/lib/dojo/", // 如果开启 必须指向【DOJO文件夹】而不是其他
+        };
+    </script>
+    <script src="/{{.static}}/lib/dojo/dojo.js1"></script>
+
+
+    <script type="text/javascript">
+     /*   require([
+            "dojo/parser",
+            "dojo/ready",//@ for ready
+            "dijit/registry", // 使用时需要"dijit"如: dijit/registry/byId/dojo/byId
+            "dijit/MenuBar",
+            "dijit/MenuBarItem",
+            "dijit/PopupMenuBarItem",
+            "dijit/layout/ContentPane",
+            "dijit/form/TextBox",
+            "dijit/layout/ContentPane",
+            "dojox/widget/AutoRotator",
+            "dojox/widget/rotator/Fade"]);
+            */
+    </script>
+
+    {% endblock %}
+
+    
+
+</head>
+<body class="claro">
+	<!-- WPA Button Begin -->
+	<script charset="utf-8" type="text/javascript" src="http://wpa.b.qq.com/cgi/wpa.php?key=XzgwMDA4Nzc0OV8xNzA4MDBfODAwMDg3NzQ5Xw"></script>
+	<!-- WPA Button End -->
+<div id="header" class='TtoO'>
+    <div class="header_block">
+        {% block header %}
+        <ul class="header_admin_nav">
+            <li class="first"><a href='/admin/'>{% trans 'Login' %}</a></li>
+            <li><a href="#">{% trans 'Register' %}</a></li>
+        </ul>
+        {% endblock %}
+    </div>
+</div>
+
+<div class="navigation"  style="-moz-user-select: -moz-none;">
+    {% block navigation %}
+
+            <div class="v-menu-bar" data-dojo-type="dijit/MenuBar">
+            		 <div class="v-logo v-block">
+		                <img src="/{{.static}}/src/img/iv-logo.png" height=70px width=70px title="" alt="">
+		            </div>
+		            
+			        <div class="header-phone" id="txtTelephone">
+			        <div>
+			        <script charset="utf-8" type="text/javascript" src="http://wpa.b.qq.com/cgi/wpa.php?key=XzgwMDA4Nzc0OV8xNzExMjdfODAwMDg3NzQ5Xw"></script>
+			        <!-- a target="_blank" href="http://www.taobao.com/webww/ww.php?ver=3&touid=iryron&siteid=cntaobao&status=1&charset=utf-8" ><img border="0" src="http://amos.alicdn.com/online.aw?v=2&uid=iryron&site=cntaobao&s=1&charset=utf-8" alt="点击这里给我发消息" /></a!-->
+			        </div>
+			        </div>
+			        
+		            <div  class="v-menu">
+					{% block nav-home %}
+					<div  class="v-menu-item"><a href="/">HOME</a> </div>
+					{% endblock %}
+					
+				    {% block nav-vector %}
+				    <div   data-dojo-type="dijit/PopupMenuBarItem" class="v-menu-item">
+					    <span>软件产品</span>
+				        <div  class="" data-dojo-type="dijit/layout/ContentPane">
+			            </div>
+				    </div>
+				    	{% endblock %}
+				    	
+				    {% block nav-ext %}
+					{% endblock %}
+					
+				    {% block nav-buy %}
+					<div   class="v-menu-item"	><a href="/buy.html">产品购买</a> </div>
+					{% endblock %}
+				    <div   class="v-menu-item"	><a href="/contact.html">联系我们</a></div>
+				    </div>
+				    
+            </div>
+    {% endblock %}
+</div>
+
+<div id="container">
+    <div id='main'>
+    	{% block banner %}
+         {% endblock %}
+         
+    	{% block contact-us %}
+         {% endblock %}
+	    {% block buy %}
+	    {% endblock %}
+        {% block container %}
+        <div class="main_block">
+            {% block homepage %}
+            {% endblock %}
+
+            {% block menu %}
+            {% endblock %}
+
+            {% block content %}
+            <div id="context">
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+
+    </div>
+</div>
+
+<div class="foot" style="-moz-user-select: -moz-none;">
+    <div class="footer" style="-moz-user-select: -moz-none;">
+        <div class="footer_resize">
+        	<dl class="partner">
+			<dt style="margin-left:25px"><a href="">申请合作</a></dt>
+			<dd><a href="http://www.google.cn/" class="google"></a></dd>
+			<dd><a href="http://www.baidu.com/" class="baidu"></a></dd>
+		</dl>
+            <div class='WtoO TOlabel'>
+                <span class='ft_links_copyright'>&copy;2000 - {% current_time "%Y" %} <a href="">iVectors.net</a> {% trans "All Rights Reserved" %} </span>
+                   <span class='ft_links_copyright'>{% trans "designed by" %} &copy; <a href="">{% trans "万向科技" %}</a></span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

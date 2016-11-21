@@ -1,0 +1,117 @@
+﻿{% extends "base.html" %}
+
+{% block title %}{% trans "Home" %}{% endblock %}
+
+	{% block description %}万向科技-企业数据发掘管理专家。产品：阿里国际管家,订制ERP{% endblock %}
+	{% block keywords %}万向科技,阿里国际管家,IC交易网机械工,Digikey收割者,ERP{% endblock %}
+
+{% block nav-home %}
+<div  class="v-menu-item current"><a href="/">HOME</a> </div>
+{% endblock %}
+
+{% block menu %}
+{% endblock %}
+
+{% block banner %}
+<div class="banner">
+<div class=" width_block">
+<div data-dojo-type="dojox.widget.AutoRotator" class="rotator" id="myAutoRotator2" data-dojo-id="myAutoRotatorInstance2" data-dojo-props="transition:'dojox.widget.rotator.crossFade', duration:2500">
+	<div class="">
+
+	<div class="width_block marquee-overlay marquee-divider g-section g-tpl-nest" id="marquee">
+	        <div class="v-banner-content g-col-4">
+	          <div class="v-content">
+	            <div class="">
+	              <h1 class="wrap">
+	                阿里国际管家（阿里国际版）
+	              </h1>
+	              <p>
+	                 国际首发真正实现百万产品上传，同步，修改，刷新的阿里巴巴国际站管理软件。
+	              </p>
+
+	                <a class="button"  href="/alicom.html">详细</a>
+
+	            </div>
+	          </div>
+	        </div>
+	        <div class="v-banner-image v-ar">
+	          <a  href="/alicom.html">
+	          <img height="350px" alt="" src="/{{.static}}/src/img/alicom_1_sl.jpg">
+	          </a>
+	        </div>
+	      </div>
+        </div>
+        
+
+	</div> 
+	
+	<div class="banner-buttom">
+		<div class="width_block">
+		<a class='prevBtn'onclick="dojo.publish('myAutoRotator2/rotator/control', ['prev']);">Prev</a>
+		<a onclick="dojo.publish('myAutoRotator2/rotator/control', ['go', 0]);">1</a>
+		<a onclick="dojo.publish('myAutoRotator2/rotator/control', ['go', 1]);">2</a>
+		<a onclick="dojo.publish('myAutoRotator2/rotator/control', ['go', 2]);">3</a>
+		<a class='nextBtn' onclick="dojo.publish('myAutoRotator2/rotator/control', ['next']);">Next</a>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div class="width_block">
+<div class="main_left">
+
+	<div class="v-t">
+			<h2>机械工</h2>
+			<p>专注于自动化管理</p>
+		</div>
+<ul class="vector_list">
+			{{if .vectors}}
+				{{range .vectors}}
+				
+				{{if ..class}}
+				{{if eq .class "mech"}}
+				<li class="ws">
+					<a href="{{.url}}" class="pic"></a>
+					<div class="cont">
+						<h3><a href="{{.url}}">{{.name}}<i class="new"></i></a></h3>
+						<p>{{.description}}</p>
+						<p><a href="{{.path}}" class="btn btn-1 _download_url_for_bd">下载</a> <span class="size">3.0MB<a href="#">论坛&gt;&gt;</a></span></p>
+					</div>
+				</li>
+				{{end}}
+				{{end}}
+				{{end}}
+			{{end}}
+		</ul>
+
+		<div class="v-t">
+			<h2>收割者</h2>
+			<p>专注于数据采集</p>
+		</div>
+		<ul class="vector_list">
+			{{if .vectors}}
+				{{range .vectors}}
+				{{if ..class}}
+				{{if eq .class "harvest"}}
+				<li class="ws">
+					<a href="{{.url}}" class="pic"></a>
+					<div class="cont">
+						<h3><a href="{{.url}}">{{.name}}<i class="new"></i></a></h3>
+						<p>{{.description}}</p>
+						<p><a href="{{.path}}" class="btn btn-1 _download_url_for_bd">下载</a> <span class="size">3.0MB<a href="#">论坛&gt;&gt;</a></span></p>
+					</div>
+				</li>
+				{{end}}
+				{{end}}
+				{{end}}
+			{{end}}
+		</ul>
+
+</div>
+<div class="main_right">
+</div>
+</div> 
+
+{% endblock %}
