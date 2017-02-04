@@ -58,7 +58,7 @@ type (
 		FuncMap map[string]interface{} //储存[模板函数]
 		VarMap  map[string]interface{} //储存[模板变量]
 
-		Cacher map[string]cache.ICache
+		Cacher map[string]cache.ICacher
 
 		// Sandbox features
 		// - Disallow access to specific tags and/or filters (using BanTag() and BanFilter())
@@ -318,7 +318,7 @@ func (self *TTemplateSet) RenderToWriter(template_name string, data map[string]i
 
 func NewTemplateSet() *TTemplateSet {
 	lHtml := &TTemplateSet{
-		Cacher:  make(map[string]cache.ICache),
+		Cacher:  make(map[string]cache.ICacher),
 		FuncMap: make(map[string]interface{}),
 		VarMap:  make(map[string]interface{}),
 	}

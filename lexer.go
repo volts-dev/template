@@ -822,7 +822,7 @@ func (l *lexer) stateNumber() lexerStateFn {
 func (l *lexer) stateString() lexerStateFn {
 	l.ignore()
 	l.startcol-- // we're starting the position at the first "
-	fmt.Println("stateString", l.accept(`'`), l.accept(`"`))
+	//fmt.Println("stateString", l.accept(`'`), l.accept(`"`))
 	for !l.accept(`'`) && !l.accept(`"`) {
 		switch l.next() {
 		case '\\':

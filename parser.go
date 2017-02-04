@@ -1,18 +1,15 @@
 package template
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"html"
 	"io"
 	"io/ioutil"
+	"path/filepath"
 	"strconv"
 	"strings"
-	//	"strconv"
-	"bytes"
-	"path/filepath"
-	//"log"
-	//"webgo/xcache"
-	//"webgo"
 )
 
 type TBlockElement struct {
@@ -691,12 +688,12 @@ func (p *Parser) parseVariableOrLiteral() (IEvaluator, *Error) {
 	if t == nil {
 		return nil, p.Error("Unexpected EOF, expected a number, string, keyword or identifier.", p.lastToken)
 	}
-	fmt.Println("parseVariableOrLiteral", t.Typ, TokenNumber, t.Val)
+	//fmt.Println("parseVariableOrLiteral", t.Typ, TokenNumber, t.Val)
 	// Is first part a number or a string, there's nothing to resolve (because there's only to return the value then)
 	switch t.Typ {
 	case TokenNumber:
 		p.Consume()
-		fmt.Println("parseVariableOrLiteral", t.Typ, t.Val)
+		//fmt.Println("parseVariableOrLiteral", t.Typ, t.Val)
 		// One exception to the rule that we don't have float64 literals is at the beginning
 		// of an expression (or a variable name). Since we know we started with an integer
 		// which can't obviously be a variable name, we can check whether the first number
@@ -894,7 +891,7 @@ func (p *Parser) parseVariableElement() (INode, *Error) {
 
 	p.Consume() // consume '{{'
 
-	expr, err := p.ParseExpression("{{")
+	expr, err := p.ParseExpression() //ParseExpression("{{")
 	if err != nil {
 		return nil, err
 	}
@@ -910,7 +907,7 @@ func (p *Parser) parseVariableElement() (INode, *Error) {
 }
 
 func (p *Parser) ParseDocument(content string) (res *nodeDocument, res_err *Error) {
-	p.tokens, res_err = NewLexer(p.name, content)
+	p.tokens, res_err = NewLexer(p.name, html.UnescapeString(content))
 	if res_err != nil {
 		return nil, res_err
 	}
@@ -926,6 +923,8 @@ func (p *Parser) parseDocument() (*nodeDocument, *Error) {
 		if err != nil {
 			return nil, err
 		}
+
+		//fmt.Println("node ", reflect.TypeOf(node))
 		doc.Nodes = append(doc.Nodes, node)
 	}
 
@@ -1250,30 +1249,35 @@ func (p *Parser) parseRelationalExpression() (IEvaluator, *Error) {
 }
 
 // #解析表达式 TODO 非Export
-func (p *Parser) ParseExpression(tag ...string) (IEvaluator, *Error) {
-	rexpr1, err := p.parseRelationalExpression()
-	if err != nil {
-		return nil, err
+func (p *Parser) ParseExpression(eva ...IEvaluator) (IEvaluator, *Error) {
+	var rexpr1 IEvaluator
+	var err *Error
+	if len(eva) == 0 {
+		rexpr1, err = p.parseRelationalExpression()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		rexpr1 = eva[0]
 	}
 
-	ltag := ""
-	if len(tag) > 0 {
-		ltag = tag[0]
-	}
 	exp := &TExpression{
 		expr1: rexpr1,
-		tag:   ltag,
+		//		tag:   ltag,
 	}
+	//fmt.Println("ParseExpression 1", reflect.TypeOf(rexpr1))
 
-	if p.PeekOne(TokenSymbol, "&&", "||") != nil || p.PeekOne(TokenKeyword, "and", "or") != nil {
+	// # 以表达式关键字为界拆分表达式
+	if p.PeekOne(TokenSymbol, "&&", "||") != nil || p.PeekOne(TokenKeyword, "and", "or", "if", "else") != nil {
 		op := p.Current()
 		p.Consume()
-		expr2, err := p.ParseExpression()
+		expr2, err := p.parseRelationalExpression()
 		if err != nil {
 			return nil, err
 		}
 		exp.expr2 = expr2
 		exp.operator = op
+		//fmt.Println("ParseExpression 2", op.String(), reflect.TypeOf(expr2))
 	}
 
 	if exp.expr2 == nil {
@@ -1281,7 +1285,7 @@ func (p *Parser) ParseExpression(tag ...string) (IEvaluator, *Error) {
 		return exp.expr1, nil
 	}
 
-	return exp, nil
+	return p.ParseExpression(exp)
 }
 
 // Returns tokens[i] or NIL (if i >= len(tokens))
@@ -1353,7 +1357,7 @@ func (p *Parser) PeekType(typ TokenType) *TToken {
 func (p *Parser) PeekTypeN(shift int, typ TokenType) *TToken {
 	t := p.Get(p.idx + shift)
 	if t != nil {
-		fmt.Println("PeekTypeN", t)
+		//fmt.Println("PeekTypeN", t)
 		if t.Typ == typ {
 			return t
 		}

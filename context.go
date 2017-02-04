@@ -1,7 +1,6 @@
 package template
 
 import (
-	"bytes"
 	"fmt"
 	"regexp"
 )
@@ -57,7 +56,7 @@ func (self TContext) Copy() TContext {
 // #
 // @mode: expr/con 简单表达式或者条件表达式
 
-func (self TContext) SafeEval(mode string, expr string) ([]*Value, error) {
+func (self TContext) SafeEval(expr string) ([]*Value, error) {
 	/*
 	   locals_dict = collections.defaultdict(lambda: None)
 	   locals_dict.update(self)
@@ -71,35 +70,33 @@ func (self TContext) SafeEval(mode string, expr string) ([]*Value, error) {
 		//fmt.Println("fasd", err.Error())
 		return nil, err
 	}
+	/*
+		if mode == "con" {
+			exctx := &ExecutionContext{
+				Public:     self,
+				Private:    nil,
+				Autoescape: true,
+			}
 
-	if mode == "con" {
-		exctx := &ExecutionContext{
-			Public:     self,
-			Private:    nil,
-			Autoescape: true,
+			buf := bytes.NewBuffer(nil)
+			err := node.Execute(exctx, buf)
+			if err != nil {
+				return nil, err
+			}
+
+			vals := make([]*Value, 0)
+			vals = append(vals, AsValue(buf.String()))
+			return vals, nil
+
 		}
-
-		buf := bytes.NewBuffer(nil)
-		err := node.Execute(exctx, buf)
-		if err != nil {
-			return nil, err
-		}
-
-		vals := make([]*Value, 0)
-		vals = append(vals, AsValue(buf.String()))
-		return vals, nil
-
-	} else {
-
-		vals, err := node.Evaluate(self)
-		if err != nil {
-			return nil, err
-		}
-		return vals, nil
-
+	*/
+	vals, err := node.Evaluate(self)
+	if err != nil {
+		return nil, err
 	}
+	return vals, nil
 
-	return nil, nil
+	//return nil, nil
 }
 
 // ExecutionContext contains all data important for the current rendering state.

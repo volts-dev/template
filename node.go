@@ -1,10 +1,5 @@
 package template
 
-import (
-	"fmt"
-	"reflect"
-)
-
 type (
 	INode interface {
 		Execute(*ExecutionContext, TemplateWriter) *Error
@@ -58,12 +53,12 @@ func (doc *nodeDocument) Execute(ctx *ExecutionContext, writer TemplateWriter) *
 
 // #执行表达式
 func (doc *nodeDocument) Evaluate(context TContext) (res_val []*Value, res_err *Error) {
-	fmt.Println("Evaluate:1", len(doc.Nodes))
+	//fmt.Println("Evaluate:1", len(doc.Nodes))
 	ctx := newExecutionContext(nil, context)
 	res_val = make([]*Value, 0)
 	var val *Value
 	for _, n := range doc.Nodes {
-		fmt.Println("Evaluate2:", n, reflect.TypeOf(n))
+		//fmt.Println("Evaluate2:", n, reflect.TypeOf(n))
 		/*
 			if eval, allowed := n.(*nodeVariable); allowed {
 				val, err = eval.Evaluate(ctx)
@@ -79,7 +74,7 @@ func (doc *nodeDocument) Evaluate(context TContext) (res_val []*Value, res_err *
 
 			res_val = append(res_val, val)
 		}
-		fmt.Println("Evaluate23", val, res_err == nil, res_err)
+		//fmt.Println("Evaluate23", val, res_err == nil, res_err)
 	}
 
 	return res_val, nil

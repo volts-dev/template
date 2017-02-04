@@ -3,45 +3,8 @@ package template
 import (
 	"fmt"
 	"math"
+	//	"reflect"
 )
-
-/*
-
-#模板全局默认变量
-	TExpression
-	│
-	├─module 应用模块目录
-	│  ├─web 模块目录
-	│  │  ├─staric 静态资源目录
-	│  │  │   ├─uploads 上传根目录
-	│  │  │   ├─lib 资源库文件目录(常用作前端框架库)
-	│  │  │   └─src 资源文件
-	│  │  │      ├─js 资源Js文件目录
-	│  │  │      ├─img 资源图片文件目录
-	│  │  │      └─css 资源Css文件
-	│  │  ├─model 模型目录
-	│  │  ├─template 视图文件目录
-	│  │  ├─data 数据目录
-	│  │  ├─model 模型目录
-	│  │  └─controller.go 控制器
-	│  │
-	│  ├─base 模块目录
-	│  │
-	│  └─... 扩展的可装卸功能模块或插件
-	│
-	├─staric 静态资源目录
-	│  ├─uploads 上传根目录
-	│  ├─lib 资源库文件目录(常用作前端框架库)
-	│  └─src 资源文件
-	│     ├─js 资源Js文件目录
-	│     ├─img 资源图片文件目录
-	│     └─css 资源Css文件
-	│
-	├─deploy 部署文件目录
-	│
-	├─main.go 主文件
-	└─main.ini 配置文件
-*/
 
 type (
 	// exp root
@@ -50,7 +13,7 @@ type (
 		expr1    IEvaluator
 		expr2    IEvaluator
 		operator *TToken
-		tag      string // 表示判断是否返回值或者布尔条件结果
+		//tag      string // 表示判断是否返回值或者布尔条件结果
 	}
 
 	relationalExpression struct {
@@ -172,36 +135,71 @@ func (expr *power) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error 
 	return nil
 }
 
+// # 执行表达式
 func (expr *TExpression) Evaluate(ctx *ExecutionContext) (*Value, *Error) {
 	v1, err := expr.expr1.Evaluate(ctx)
 	if err != nil {
 		return nil, err
 	}
+
+	//fmt.Println("TExpression", reflect.TypeOf(expr.expr1), v1.Interface())
 	if expr.expr2 != nil {
 		v2, err := expr.expr2.Evaluate(ctx)
 		if err != nil {
 			return nil, err
 		}
+		//fmt.Println("TExpression2", reflect.TypeOf(expr.expr2), v2.Interface())
 		switch expr.operator.Val {
+		case "if":
+			if v2.IsTrue() {
+				return AsValue(v1.Interface()), nil
+			}
+			return AsValue(false), nil
+		case "else":
+			if v1.IsTrue() {
+				return AsValue(v2.Interface()), nil
+			}
+			return AsValue(false), nil
+
 		case "and", "&&":
-			return AsValue(v1.IsTrue() && v2.IsTrue()), nil
-		case "or", "||":
-			if expr.tag == "{{" { // 新添加以区分返回值还是布尔值
-				if !v1.IsNil() {
-					return AsValue(v1.Interface()), nil
-				} else {
+			//fmt.Println("AND", v1.Interface(), v2.Interface())
+			if v1.IsBool() && !v2.IsBool() {
+				if v1.IsTrue() {
 					return AsValue(v2.Interface()), nil
 				}
-			} else {
+				return AsValue(v1.IsTrue()), nil
+			}
+
+			return AsValue(v1.IsTrue() && v2.IsTrue()), nil
+
+		case "or", "||": // # 新添加以区分返回值还是布尔值
+			// # 当都是布尔类型时返回布尔类型
+			if (v1.IsBool()) && v2.IsBool() {
 				return AsValue(v1.IsTrue() || v2.IsTrue()), nil
 			}
 
+			//fmt.Println("OR", v1.IsBool(), v2.IsBool(), expr.operator.Val, v1.Interface(), v2.Interface())
+			if v1.IsNil() {
+				if v2.IsNil() { //# 当V1和V2都是Nil时返回false
+					return AsValue(false), nil
+				}
+				// # 否则返回V2
+				return AsValue(v2.Interface()), nil
+
+			} else {
+				if v1.IsBool() && !v1.IsTrue() {
+					return AsValue(v2.Interface()), nil
+				}
+
+				return AsValue(v1.Interface()), nil
+			}
 		default:
 			panic(fmt.Sprintf("unimplemented: %s", expr.operator.Val))
 		}
-	} else {
-		return v1, nil
+
 	}
+
+	return v1, nil
 }
 
 func (expr *relationalExpression) Evaluate(ctx *ExecutionContext) (*Value, *Error) {
@@ -274,7 +272,7 @@ func (expr *simpleExpression) Evaluate(ctx *ExecutionContext) (*Value, *Error) {
 			return nil, ctx.Error("Negative sign on a non-number expression", expr.GetPositionToken())
 		}
 	}
-
+	//fmt.Println("simpleExpression", t1.Interface())
 	if expr.term2 != nil {
 		t2, err := expr.term2.Evaluate(ctx)
 		if err != nil {
@@ -308,6 +306,8 @@ func (expr *term) Evaluate(ctx *ExecutionContext) (*Value, *Error) {
 	if err != nil {
 		return nil, err
 	}
+
+	//fmt.Println("term", f1.Interface())
 	if expr.factor2 != nil {
 		f2, err := expr.factor2.Evaluate(ctx)
 		if err != nil {
@@ -344,6 +344,7 @@ func (expr *power) Evaluate(ctx *ExecutionContext) (*Value, *Error) {
 	if err != nil {
 		return nil, err
 	}
+	//fmt.Println("power", p1.Interface())
 	if expr.power2 != nil {
 		p2, err := expr.power2.Evaluate(ctx)
 		if err != nil {
