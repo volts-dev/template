@@ -43,7 +43,7 @@ func TestExpressionConParser(t *testing.T) {
 	//exctx := newExecutionContext(nil, ctx)
 
 	p := NewExpressionParser()
-	node, err := p.ParseDocument(`{{website.user_id2 if website.user_id == '2' else "12" }}`)
+	node, err := p.ParseDocument(`{{website.user_id2 if website.user_id == '2' else None }}`)
 	if err != nil {
 		fmt.Println(err.Error())
 		return

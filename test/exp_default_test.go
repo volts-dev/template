@@ -5,7 +5,7 @@ import (
 	//	"bytes"
 	"fmt"
 	"testing"
-	"webgo/template"
+	"vectors/web/template"
 )
 
 // ~ website.id if (editable or translatable) and website else None
@@ -49,10 +49,13 @@ func TestExpressionDefault2Test(t *testing.T) {
 	ctx["editable"] = true
 	ctx["translatable"] = false
 	ctx["title"] = "2423"
+	ctx["id"] = "2423"
 	//exctx := newExecutionContext(nil, ctx)
 
 	p := template.NewExpressionParser()
-	node, err := p.ParseDocument(`{% if (editable or translatable) and website %}{{website.id}}{% endif %}`)
+	//node, err := p.ParseDocument(`{% if (editable or translatable) and website %}{{website.id}}{% endif %}`)
+	node, err := p.ParseDocument(`{'invisible': [('id', '=', False)]}`)
+
 	if err != nil {
 		fmt.Println(err.Error())
 		return

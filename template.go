@@ -1,11 +1,11 @@
 package template
 
 import (
-	"io"
-
 	"bytes"
-
+	"crypto/md5"
+	"fmt"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,11 +13,9 @@ import (
 	"path/filepath"
 	"reflect"
 	"sync"
-	"webgo/cache"
-	//	"webgo/utils"
-	//"webgo/xlogger"
-	"crypto/md5"
-	"fmt"
+	"time"
+
+	"github.com/VectorsOrigin/cacher"
 )
 
 /*
@@ -42,6 +40,16 @@ var tags = map[string]ParseFunc {
 // as unexported by all other clients.
 // Template 用来封装Parser 提供的行数 来提供对外功能
 type (
+	// 模板资源文件
+	TAssetFile struct {
+		Name     string // 文件名称
+		Path     string // 路径
+		Type     string // js,css,html
+		Content  string
+		Media    string
+		Modified time.Time // 修改时间
+	}
+
 	TTemplate struct {
 		set     *TTemplateSet
 		Name    string
@@ -52,7 +60,7 @@ type (
 		level int
 	}
 
-	// 管理对象
+	// 管理模板对象  变量以及缓存等
 	TTemplateSet struct { //TemplateSet
 		name    string
 		FuncMap map[string]interface{} //储存[模板函数]

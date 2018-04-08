@@ -3,9 +3,9 @@ package test
 import (
 	"fmt"
 	"testing"
-	"webgo"
-	"webgo/template"
-	"webgo/utils"
+	"vectors/utils"
+	"vectors/web"
+	"vectors/web/template"
 )
 
 var AppFilePath = utils.AppPath()

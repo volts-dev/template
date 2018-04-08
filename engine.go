@@ -3,13 +3,21 @@ package template
 import (
 	//	"fmt"
 	"strings"
-	"webgo/logger"
+
+	"github.com/VectorsOrigin/logger"
 )
 
 type (
-	//TODO 提供模板加载的接口
+	//TODO 改成Reader 提供模板加载的接口
 	ILoader interface {
+		// TODO ReadSource() 提供模板加载的接口
 		ReadTemplate(name string) string
+		// TODO WriteSource()/ 提供静态文件保存方法
+		WriteTemplate(template map[string]interface{}) string
+
+		// 读取模板里资源文件 name 为文件路径名
+		ReadAsset(xmlid, path, inc, typ string) []*TAssetFile
+		WriteAsset(template map[string]interface{})
 	}
 
 	IEngine interface {

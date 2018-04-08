@@ -427,7 +427,9 @@ func (v *Value) IterateOrder(fn func(idx, count int, key, value *Value) bool, em
 				}
 			}
 		} else {
-			empty()
+			if empty != nil {
+				empty()
+			}
 		}
 		return // done
 	case reflect.String:
