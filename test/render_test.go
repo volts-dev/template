@@ -3,9 +3,10 @@ package test
 import (
 	"fmt"
 	"testing"
-	"vectors/utils"
-	"vectors/web"
-	"vectors/web/template"
+
+	"github.com/VectorsOrigin/template"
+	"github.com/VectorsOrigin/web"
+	"github.com/volts-dev/utils"
 )
 
 var AppFilePath = utils.AppPath()

@@ -5,7 +5,8 @@ import (
 	//	"bytes"
 	"fmt"
 	"testing"
-	"vectors/web/template"
+
+	"github.com/volts-dev/template"
 )
 
 // ~ website.id if (editable or translatable) and website else None

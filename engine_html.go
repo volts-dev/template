@@ -14,6 +14,11 @@ type (
 	}
 )
 
+func init() {
+	// 注册模板引擎
+	RegisterEngine("base", &TBaseEngine{})
+}
+
 func NewBaseEngine() *TBaseEngine {
 	return &TBaseEngine{}
 }
