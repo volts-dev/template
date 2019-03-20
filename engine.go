@@ -4,7 +4,7 @@ import (
 	//	"fmt"
 	"strings"
 
-	"github.com/VectorsOrigin/logger"
+	"github.com/volts-dev/logger"
 )
 
 type (
