@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/volts-dev/cacher"
+	cache "github.com/volts-dev/cacher"
 )
 
 /*
@@ -96,7 +96,7 @@ var (
 	}
 	TemplateVars = map[string]interface{}{} //储存[模板变量]
 
-	TemplateSet = NewTemplateSet()
+	DefaultTemplateSet = NewTemplateSet()
 )
 
 func init() {
@@ -481,12 +481,12 @@ func (self *TTemplate) Render(context ...interface{}) string {
 }
 
 func FromString(template string) (res_html *TTemplateSet) {
-	return TemplateSet
+	return DefaultTemplateSet
 }
 
 func FromFile(template string) (res_html *TTemplateSet) {
 
-	return TemplateSet
+	return DefaultTemplateSet
 }
 
 /*
