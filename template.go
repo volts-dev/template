@@ -7,7 +7,6 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -96,7 +95,7 @@ var (
 	}
 	TemplateVars = map[string]interface{}{} //储存[模板变量]
 
-	DefaultTemplateSet = NewTemplateSet()
+	defaultTemplateSet = NewTemplateSet()
 )
 
 func init() {
@@ -115,29 +114,8 @@ func init() {
 	//tplcache.Active(false)
 }
 
-func Str2html(raw string) template.HTML {
-	return template.HTML(raw)
-
-	//fmt.Println("rawsssssssssss:", raw)
-	//return template.HTMLEscaper(raw)
-}
-
-func SetStaticPath(path string) {
-	TEMPLATES_ROOT = path
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+func Default() *TTemplateSet {
+	return defaultTemplateSet
 }
 
 func (self *TTemplateSet) AddVar(aVarMap map[string]interface{}) {
@@ -206,7 +184,7 @@ func (self *TTemplateSet) __Render(engine IEngine, aHtmlSrc string, w http.Respo
 
 		_, err := lTmpl.Parse(tmpl.Render(data)) // 分析
 		if err != nil {
-			log.Println("X-Error:tmpl.Parse %s", err)
+			log.Errf("X-Error:tmpl.Parse %s", err)
 		}
 
 		//log.Println("RenderToResponse:", tmpl.Render(data))
@@ -278,7 +256,7 @@ func (self *TTemplateSet) RenderToWriter(template_name string, data map[string]i
 	if c, ok := self.Cacher[lName]; ok && c.Len() > 0 {
 		if tmpl, ok := c.Front().(*template.Template); ok {
 			lTmpl = tmpl
-			log.Println("Template in cache is vaild", tmpl)
+			log.Errf("Template in cache is vaild", tmpl)
 		}
 	}
 
@@ -481,12 +459,12 @@ func (self *TTemplate) Render(context ...interface{}) string {
 }
 
 func FromString(template string) (res_html *TTemplateSet) {
-	return DefaultTemplateSet
+	return defaultTemplateSet
 }
 
 func FromFile(template string) (res_html *TTemplateSet) {
 
-	return DefaultTemplateSet
+	return defaultTemplateSet
 }
 
 /*
@@ -499,4 +477,29 @@ func Context(key string, value interface{}) {
 // 添加方法,fn为Nil时为删除
 func Func(name string, fn interface{}) {
 
+}
+
+func Str2html(raw string) template.HTML {
+	return template.HTML(raw)
+
+	//fmt.Println("rawsssssssssss:", raw)
+	//return template.HTMLEscaper(raw)
+}
+
+func SetStaticPath(path string) {
+	TEMPLATES_ROOT = path
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

@@ -3,8 +3,6 @@ package template
 import (
 	//	"fmt"
 	"strings"
-
-	"github.com/volts-dev/logger"
 )
 
 type (
@@ -47,7 +45,7 @@ func NewEngine(name string) (engine IEngine) {
 		//logger.Logger.Err("%s engine not available!", name)
 
 		if engine, has = template_engines["html"]; !has || engine == nil {
-			logger.Logger.Err("%s engine not available!", name)
+			log.Err("%s engine not available!", name)
 			return nil //fmt.Errorf("%s engine not available!", name)
 		}
 	}

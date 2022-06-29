@@ -3,6 +3,8 @@ package template
 import (
 	"os"
 	"path"
+
+	"github.com/volts-dev/volts/logger"
 )
 
 const (
@@ -11,6 +13,7 @@ const (
 )
 
 var (
+	log = logger.New("TEMPLATE")
 	//	Tpl *Template // 模板库
 	ROOT, _ = os.Getwd()
 	//	MEDIA_ROOT     = path.Join(ROOT, "/static")    // 静态文件物理路径
