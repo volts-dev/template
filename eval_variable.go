@@ -65,7 +65,7 @@ type nodeIf struct {
 	wrappers      []IEvaluative
 }
 
-func (v *nodeFilteredVariable) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (v *nodeFilteredVariable) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	value, err := v.Evaluate(ctx)
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ func (v *nodeFilteredVariable) Execute(ctx *ExecutionContext, writer TemplateWri
 	return nil
 }
 
-func (vr *variableResolver) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (vr *variableResolver) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	value, err := vr.Evaluate(ctx)
 	if err != nil {
 		return err
@@ -83,7 +83,7 @@ func (vr *variableResolver) Execute(ctx *ExecutionContext, writer TemplateWriter
 	return nil
 }
 
-func (s *stringResolver) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (s *stringResolver) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	value, err := s.Evaluate(ctx)
 	if err != nil {
 		return err
@@ -92,7 +92,7 @@ func (s *stringResolver) Execute(ctx *ExecutionContext, writer TemplateWriter) *
 	return nil
 }
 
-func (i *intResolver) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (i *intResolver) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	value, err := i.Evaluate(ctx)
 	if err != nil {
 		return err
@@ -101,7 +101,7 @@ func (i *intResolver) Execute(ctx *ExecutionContext, writer TemplateWriter) *Err
 	return nil
 }
 
-func (f *floatResolver) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (f *floatResolver) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	value, err := f.Evaluate(ctx)
 	if err != nil {
 		return err
@@ -110,7 +110,7 @@ func (f *floatResolver) Execute(ctx *ExecutionContext, writer TemplateWriter) *E
 	return nil
 }
 
-func (b *boolResolver) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (b *boolResolver) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	value, err := b.Evaluate(ctx)
 	if err != nil {
 		return err
@@ -447,7 +447,7 @@ func (node *nodeIf) Evaluate(ctx *ExecutionContext) (*Value, *Error) {
 	return nil, nil
 }
 
-func (node *nodeIf) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (node *nodeIf) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	for i, condition := range node.conditions {
 		result, err := condition.Evaluate(ctx)
 		if err != nil {

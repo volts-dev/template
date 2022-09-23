@@ -2,7 +2,7 @@ package template
 
 type (
 	INode interface {
-		Execute(*ExecutionContext, TemplateWriter) *Error
+		Execute(*ExecutionContext, ITemplateWriter) *Error
 	}
 
 	INodeTag interface {
@@ -41,7 +41,7 @@ type (
 	}
 )
 
-func (doc *nodeDocument) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (doc *nodeDocument) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	for _, n := range doc.Nodes {
 		err := n.Execute(ctx, writer)
 		if err != nil {
@@ -80,12 +80,12 @@ func (doc *nodeDocument) Evaluate(context TContext) (res_val []*Value, res_err *
 	return res_val, nil
 }
 
-func (n *nodeHTML) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (n *nodeHTML) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	writer.WriteString(n.token.Val)
 	return nil
 }
 
-func (wrapper *NodeWrapper) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (wrapper *NodeWrapper) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	for _, n := range wrapper.nodes {
 		err := n.Execute(ctx, writer)
 		if err != nil {
@@ -103,7 +103,7 @@ func (nv *nodeVariable) Evaluate(ctx *ExecutionContext) (*Value, *Error) {
 	return nv.expr.Evaluate(ctx)
 }
 
-func (nv *nodeVariable) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (nv *nodeVariable) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	value, err := nv.expr.Evaluate(ctx)
 	if err != nil {
 		return err

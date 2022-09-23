@@ -244,7 +244,6 @@ func (self *Parser) parse_block(block *TBlockElement) error {
 			break
 		}
 	}
-	return nil
 }
 
 // s Html文件流

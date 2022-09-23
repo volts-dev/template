@@ -90,7 +90,7 @@ func (expr *power) GetPositionToken() *TToken {
 	return expr.power1.GetPositionToken()
 }
 
-func (expr *TExpression) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (expr *TExpression) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	value, err := expr.Evaluate(ctx)
 	if err != nil {
 		return err
@@ -99,7 +99,7 @@ func (expr *TExpression) Execute(ctx *ExecutionContext, writer TemplateWriter) *
 	return nil
 }
 
-func (expr *relationalExpression) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (expr *relationalExpression) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	value, err := expr.Evaluate(ctx)
 	if err != nil {
 		return err
@@ -108,7 +108,7 @@ func (expr *relationalExpression) Execute(ctx *ExecutionContext, writer Template
 	return nil
 }
 
-func (expr *simpleExpression) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (expr *simpleExpression) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	value, err := expr.Evaluate(ctx)
 	if err != nil {
 		return err
@@ -117,7 +117,7 @@ func (expr *simpleExpression) Execute(ctx *ExecutionContext, writer TemplateWrit
 	return nil
 }
 
-func (expr *term) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (expr *term) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	value, err := expr.Evaluate(ctx)
 	if err != nil {
 		return err
@@ -126,7 +126,7 @@ func (expr *term) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
 	return nil
 }
 
-func (expr *power) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (expr *power) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	value, err := expr.Evaluate(ctx)
 	if err != nil {
 		return err

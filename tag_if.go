@@ -5,6 +5,10 @@ type tagIfNode struct {
 	wrappers   []*NodeWrapper
 }
 
+func init() {
+	RegisterTag("if", tagIfParser)
+}
+
 func (node *tagIfNode) Evaluate(ctx *ExecutionContext) (*Value, *Error) {
 	for _, condition := range node.conditions {
 		return condition.Evaluate(ctx)
@@ -12,7 +16,7 @@ func (node *tagIfNode) Evaluate(ctx *ExecutionContext) (*Value, *Error) {
 	return nil, nil
 }
 
-func (node *tagIfNode) Execute(ctx *ExecutionContext, writer TemplateWriter) *Error {
+func (node *tagIfNode) Execute(ctx *ExecutionContext, writer ITemplateWriter) *Error {
 	for i, condition := range node.conditions {
 		result, err := condition.Evaluate(ctx)
 		if err != nil {
@@ -77,8 +81,4 @@ func tagIfParser(doc *Parser, start *TToken, arguments *Parser) (INodeTag, *Erro
 	}
 
 	return ifNode, nil
-}
-
-func init() {
-	RegisterTag("if", tagIfParser)
 }

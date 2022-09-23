@@ -14,7 +14,8 @@ import (
 	"sync"
 	"time"
 
-	cache "github.com/volts-dev/cacher"
+	"github.com/volts-dev/cacher"
+	"github.com/volts-dev/cacher/memory"
 )
 
 /*
@@ -65,7 +66,7 @@ type (
 		FuncMap map[string]interface{} //储存[模板函数]
 		VarMap  map[string]interface{} //储存[模板变量]
 
-		Cacher map[string]cache.ICacher
+		Cacher map[string]memory.ListCache
 
 		// Sandbox features
 		// - Disallow access to specific tags and/or filters (using BanTag() and BanFilter())
@@ -85,7 +86,7 @@ type (
 const Version = "beta"
 
 var (
-	//tplcache cache.ICache
+	//tplcache cacher.ICache
 	TemplateFuncs = map[string]interface{}{
 		"trans": func(aText string) template.HTML {
 			return template.HTML(aText)
@@ -95,27 +96,21 @@ var (
 	}
 	TemplateVars = map[string]interface{}{} //储存[模板变量]
 
-	defaultTemplateSet = NewTemplateSet()
+	defaultTemplateSet = New()
 )
-
-func init() {
-	//TemplateFuncs = make(map[string]interface{})
-
-	/*
-		// 添加默认[模板函数]
-		AddTmplFuncs(map[string]interface{}{
-			"Str2html": Str2html,
-		},
-		)
-	*/
-	// 注册新缓存
-	//cache.Register("tplcache", cache.NewMemoryCache())
-	//tplcache, _ = cache.NewCache("tplcache", `{"interval":1}`)
-	//tplcache.Active(false)
-}
 
 func Default() *TTemplateSet {
 	return defaultTemplateSet
+}
+
+func New() *TTemplateSet {
+	lHtml := &TTemplateSet{
+		Cacher:  make(map[string]memory.ListCache),
+		FuncMap: make(map[string]interface{}),
+		VarMap:  make(map[string]interface{}),
+	}
+	lHtml.AddFuncs(TemplateFuncs)
+	return lHtml
 }
 
 func (self *TTemplateSet) AddVar(aVarMap map[string]interface{}) {
@@ -167,7 +162,8 @@ func (self *TTemplateSet) __Render(engine IEngine, aHtmlSrc string, w http.Respo
 	///log.Println("Template", lName)
 	// 是否存在该 Template 的缓存且不为空
 	if c, ok := self.Cacher[lName]; ok && c.Len() > 0 {
-		if tmpl, ok := c.Front().(*template.Template); ok {
+		block := c.Front()
+		if tmpl, ok := block.Value.(*template.Template); ok {
 			lTmpl = tmpl
 			///log.Println("Template in cache is vaild", tmpl)
 		} else {
@@ -190,7 +186,7 @@ func (self *TTemplateSet) __Render(engine IEngine, aHtmlSrc string, w http.Respo
 		//log.Println("RenderToResponse:", tmpl.Render(data))
 		// 为新的模板新建缓存系统
 		if self.Cacher[lName] == nil {
-			self.Cacher[lName] = cache.NewMemoryCache()
+			self.Cacher[lName] = memory.New()
 		}
 		//log.Println("New Template in cache is vaildable", tmpl)
 	}
@@ -204,7 +200,7 @@ func (self *TTemplateSet) __Render(engine IEngine, aHtmlSrc string, w http.Respo
 
 	// 保留缓存
 	if self.Cacheable {
-		self.Cacher[lName].Push(lTmpl, 43200)
+		self.Cacher[lName].Set(&cacher.CacheBlock{Key: lName, Value: lTmpl})
 	}
 
 }
@@ -251,10 +247,10 @@ func (self *TTemplateSet) RenderToWriter(template_name string, data map[string]i
 	// Name of template
 	lName = self.MD5(template_name)
 
-	///log.Println("Template", lName)
 	// 是否存在该 Template 的缓存且不为空
 	if c, ok := self.Cacher[lName]; ok && c.Len() > 0 {
-		if tmpl, ok := c.Front().(*template.Template); ok {
+		block := c.Front()
+		if tmpl, ok := block.Value.(*template.Template); ok {
 			lTmpl = tmpl
 			log.Errf("Template in cache is vaild", tmpl)
 		}
@@ -281,7 +277,7 @@ func (self *TTemplateSet) RenderToWriter(template_name string, data map[string]i
 		//log.Println("RenderToResponse:", template_name, lTmplStr)
 		// 为新的模板新建缓存系统
 		if self.Cacher[lName] == nil {
-			self.Cacher[lName] = cache.NewMemoryCache()
+			self.Cacher[lName] = memory.New()
 		}
 		//log.Println("New Template in cache is vaildable", tmpl)
 	}
@@ -296,20 +292,10 @@ func (self *TTemplateSet) RenderToWriter(template_name string, data map[string]i
 
 	// 保留缓存
 	if self.Cacheable {
-		self.Cacher[lName].Push(lTmpl, 43200)
+		self.Cacher[lName].Set(&cacher.CacheBlock{Key: lName, Value: lTmpl})
 	}
 
 	return
-}
-
-func NewTemplateSet() *TTemplateSet {
-	lHtml := &TTemplateSet{
-		Cacher:  make(map[string]cache.ICacher),
-		FuncMap: make(map[string]interface{}),
-		VarMap:  make(map[string]interface{}),
-	}
-	lHtml.AddFuncs(TemplateFuncs)
-	return lHtml
 }
 
 func Escape(content string) string {

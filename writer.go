@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-type TemplateWriter interface {
+type ITemplateWriter interface {
 	io.Writer
 	WriteString(string) (int, error)
 }
@@ -15,8 +15,6 @@ type templateWriter struct {
 }
 
 func (tw *templateWriter) WriteString(s string) (int, error) {
-	//fmt.Println("77", tw, s)
-	//fmt.Println("777", tw, tw.w)
 	return tw.w.Write([]byte(s))
 }
 
