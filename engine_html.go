@@ -57,8 +57,10 @@ func (self *TBaseEngine) RenderTemplate(template_set *TTemplateSet, loader ILoad
 
 	//TODO 改为工厂模式
 	lTemplate := NewTemplate("")
-	lTemplate.Dir = lFileDir
-	lTemplate.Parse(res_doc) //, langmap) // 分析文件或数据流
+	lTemplate.DirPath = lFileDir
+	if _, err := lTemplate.Parse(res_doc); err != nil { //, langmap) // 分析文件或数据流
+		return "", err
+	}
 	return lTemplate.Render(context), nil
 
 }

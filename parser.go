@@ -195,7 +195,7 @@ func (self *Parser) parse_block(block *TBlockElement) error {
 				//fmt.Println("include:", tag_file) //####
 
 				// 获得 {* extends "base.html" *} 文件名
-				stream, err := ioutil.ReadFile(filepath.Join(ROOT, self.template.Dir, tag_file)) // 读取文件
+				stream, err := ioutil.ReadFile(filepath.Join(self.template.DirPath, tag_file)) // 读取文件
 				if err != nil {
 					return err
 				}
@@ -312,7 +312,7 @@ func (self *Parser) parse() error {
 				tag_file := strings.Trim(string(tags[1]), "'\"`")
 				//fmt.Println("include:", tag_file) //####
 				// 获得 {* extends "base.html" *} 文件名
-				filepath := filepath.Join(ROOT, self.template.Dir, tag_file)
+				filepath := filepath.Join(self.template.DirPath, tag_file)
 				stream, err := ioutil.ReadFile(filepath) // 读取文件
 				if err != nil {
 					return err
@@ -344,7 +344,7 @@ func (self *Parser) parse() error {
 
 				tag_file := strings.Trim(string(tags[1]), "'\"`") // 获得 {* extends "base.html" *} 文件名
 
-				filepath := filepath.Join(ROOT, self.template.Dir, tag_file)
+				filepath := filepath.Join(self.template.DirPath, tag_file)
 				//log.Print("extends:", string(tags[1])) //####
 				stream, err := ioutil.ReadFile(filepath) // 读取文件
 				//log.Print("len(tags)", len(tags), tag_file, string(tags[0]))

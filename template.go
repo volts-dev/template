@@ -53,7 +53,7 @@ type (
 	TTemplate struct {
 		set     *TTemplateSet
 		Name    string
-		Dir     string
+		DirPath string // 模版文件夹路径
 		parser  *Parser
 		langMap map[string]string
 
@@ -172,7 +172,7 @@ func (self *TTemplateSet) __Render(engine IEngine, aHtmlSrc string, w http.Respo
 		}
 	} else {
 		tmpl := NewTemplate(lName)
-		tmpl.Dir = lFileDir
+		tmpl.DirPath = lFileDir
 		tmpl.Parse(aHtmlSrc) //, langmap) // 分析文件或数据流
 
 		// 使用原生态Parse 扩展处理好的HTML
@@ -390,8 +390,7 @@ func (self *TTemplate) Parse(aSrc string /*, langmap map[string]string*/) (*TTem
 		self.Dir = lFileDir
 		self.langMap = langmap
 	*/
-	_, err := self.parse(aSrc)
-	if err != nil {
+	if _, err := self.parse(aSrc); err != nil {
 		return nil, err
 	}
 
