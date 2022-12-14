@@ -54,6 +54,7 @@ type Parser struct {
 	lastToken *TToken
 }
 
+// TODO 支持<a/>格式
 // Creates a new parser to parse tokens.
 // Used inside pongo2 to parse documents and to provide an easy-to-use
 // parser for tag authors

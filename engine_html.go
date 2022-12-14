@@ -27,7 +27,7 @@ func (self *TBaseEngine) TemplateSet() *TTemplateSet {
 	return self.template_set
 }
 
-// TODO
+// TOD
 func (self *TBaseEngine) RenderTemplate(template_set *TTemplateSet, loader ILoader, template string, context map[string]interface{}) (res_doc string, res_err error) {
 	// 可以是文件或数据流
 	//_, res_err = os.Stat(template) // 返回FileInfo 只返回当有该文件时,其他出错
