@@ -2,20 +2,10 @@ package template
 
 import (
 	"bytes"
-	"crypto/md5"
-	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"path/filepath"
 	"reflect"
-	"sync"
 	"time"
-
-	"github.com/volts-dev/cacher"
-	"github.com/volts-dev/cacher/memory"
 )
 
 /*
@@ -51,34 +41,14 @@ type (
 	}
 
 	TTemplate struct {
-		set     *TTemplateSet
-		Name    string
-		DirPath string // 模版文件夹路径
-		parser  *Parser
-		langMap map[string]string
+		Engine   IEngine
+		Name     string
+		DirPath  string // 模版文件夹路径
+		parser   *Parser
+		template *template.Template
+		langMap  map[string]string
 
 		level int
-	}
-
-	// 管理模板对象  变量以及缓存等
-	TTemplateSet struct { //TemplateSet
-		name    string
-		FuncMap map[string]interface{} //储存[模板函数]
-		VarMap  map[string]interface{} //储存[模板变量]
-
-		Cacher map[string]memory.ListCache
-
-		// Sandbox features
-		// - Disallow access to specific tags and/or filters (using BanTag() and BanFilter())
-		//
-		// For efficiency reasons you can ban tags/filters only *before* you have
-		// added your first template to the set (restrictions are statically checked).
-		// After you added one, it's not possible anymore (for your personal security).
-		firstTemplateCreated bool
-		bannedTags           map[string]bool
-		bannedFilters        map[string]bool
-		Cacheable            bool // 可缓存
-		lock                 sync.Mutex
 	}
 )
 
@@ -98,209 +68,6 @@ var (
 
 	defaultTemplateSet = New()
 )
-
-func Default() *TTemplateSet {
-	return defaultTemplateSet
-}
-
-func New() *TTemplateSet {
-	lHtml := &TTemplateSet{
-		Cacher:  make(map[string]memory.ListCache),
-		FuncMap: make(map[string]interface{}),
-		VarMap:  make(map[string]interface{}),
-	}
-	lHtml.AddFuncs(TemplateFuncs)
-	return lHtml
-}
-
-func (self *TTemplateSet) AddVar(aVarMap map[string]interface{}) {
-	for key, val := range aVarMap {
-		self.VarMap[key] = val
-	}
-}
-func (self *TTemplateSet) AddFuncs(aFuncMap map[string]interface{}) {
-	for key, val := range aFuncMap {
-		self.FuncMap[key] = val
-	}
-}
-
-// Name of template
-func (self *TTemplateSet) MD5(name string) string {
-	return fmt.Sprintf("%x", md5.Sum([]byte(name)))
-}
-
-// X+Org渲染
-func (self *TTemplateSet) __Render(engine IEngine, aHtmlSrc string, w http.ResponseWriter /* langmap map[string]string, */, data interface{}) {
-	//var stream []byte
-	var (
-		lName, lFileDir string
-		//lFileName string
-		lTmpl *template.Template
-	)
-	//var err error
-
-	// 可以是文件或数据流
-	_, e := os.Stat(aHtmlSrc) // 返回FileInfo 只返回当有该文件时,其他出错
-	//log.Println(e)
-	//log.Println(d, e, aSrc, !d.IsDir(), cc, aa, path.IsAbs(cc))
-	if len(aHtmlSrc) < 255 && e == nil { //e==nil 代表有该文件.所以是文件
-		lFileDir, _ = filepath.Split(aHtmlSrc) // [文件名]
-
-		lStream, err := ioutil.ReadFile(aHtmlSrc) // 读取文件
-		if err != nil {
-			return // nil, err
-		}
-
-		aHtmlSrc = string(lStream)
-	} else {
-		//name = "Unknow" //获得文件名 " index.htm"
-
-		//log.Println("IsStream")
-	}
-	// Name of template
-	lName = fmt.Sprintf("%x", md5.Sum([]byte(aHtmlSrc)))
-	///log.Println("Template", lName)
-	// 是否存在该 Template 的缓存且不为空
-	if c, ok := self.Cacher[lName]; ok && c.Len() > 0 {
-		block := c.Front()
-		if tmpl, ok := block.Value.(*template.Template); ok {
-			lTmpl = tmpl
-			///log.Println("Template in cache is vaild", tmpl)
-		} else {
-			///log.Println("Template in cache is invaild : %s")
-			return
-		}
-	} else {
-		tmpl := NewTemplate(lName)
-		tmpl.DirPath = lFileDir
-		tmpl.Parse(aHtmlSrc) //, langmap) // 分析文件或数据流
-
-		// 使用原生态Parse 扩展处理好的HTML
-		lTmpl = template.New(lName).Funcs(self.FuncMap) //## 考虑是否有必要添加Funcs 到lTmpl.Execute(w, data)前添加模板函数
-
-		_, err := lTmpl.Parse(tmpl.Render(data)) // 分析
-		if err != nil {
-			log.Errf("X-Error:tmpl.Parse %s", err)
-		}
-
-		//log.Println("RenderToResponse:", tmpl.Render(data))
-		// 为新的模板新建缓存系统
-		if self.Cacher[lName] == nil {
-			self.Cacher[lName] = memory.New()
-		}
-		//log.Println("New Template in cache is vaildable", tmpl)
-	}
-
-	// 合并模板变量
-	//data = utils.MergeMaps(self.VarMap, data)
-	err := lTmpl.Execute(w, data) // 绘制模板
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-	// 保留缓存
-	if self.Cacheable {
-		self.Cacher[lName].Set(&cacher.CacheBlock{Key: lName, Value: lTmpl})
-	}
-
-}
-
-func (self *TTemplateSet) RenderToString(template_name string, data map[string]interface{}, engine_args ...interface{}) (res_html string, res_err error) {
-	var buf bytes.Buffer
-	res_err = self.RenderToWriter(template_name, data, &buf, engine_args...)
-	return buf.String(), res_err
-}
-
-func (self *TTemplateSet) RenderToBytes(template_name string, data map[string]interface{}, engine_args ...interface{}) (res_html []byte, res_err error) {
-	var buf bytes.Buffer
-	res_err = self.RenderToWriter(template_name, data, &buf, engine_args...)
-	return buf.Bytes(), res_err
-}
-
-func (self *TTemplateSet) RenderToWriter(template_name string, data map[string]interface{}, w io.Writer /* langmap map[string]string, */, engine_args ...interface{}) (res_err error) {
-	//var stream []byte
-	var (
-		lName string
-		//lFileName string
-		lTmpl       *template.Template
-		engine      IEngine
-		lEngineName string
-		loader      ILoader
-	)
-	// 拆分引擎参数为 name,loader
-	for idex, arg := range engine_args {
-		if idex == 0 { // engine_name
-			if a, allowed := arg.(string); allowed && a != "" {
-				lEngineName = a
-			}
-		}
-
-		if idex == 1 {
-			if ldr, allowed := arg.(ILoader); allowed && ldr != nil {
-				loader = ldr
-			}
-		}
-	}
-
-	engine = NewEngine(lEngineName)
-
-	// Name of template
-	lName = self.MD5(template_name)
-
-	// 是否存在该 Template 的缓存且不为空
-	if c, ok := self.Cacher[lName]; ok && c.Len() > 0 {
-		block := c.Front()
-		if tmpl, ok := block.Value.(*template.Template); ok {
-			lTmpl = tmpl
-			log.Errf("Template in cache is vaild", tmpl)
-		}
-	}
-
-	if lTmpl == nil {
-		lTmplStr := ""
-		lTmplStr, res_err = engine.RenderTemplate(self, loader, template_name, data)
-		if res_err != nil {
-			return
-		}
-		// 使用原生态Parse 扩展处理好的HTML
-		lTmpl = template.New(lName).Funcs(self.FuncMap) //## 考虑是否有必要添加Funcs 到lTmpl.Execute(w, data)前添加模板函数
-
-		//log.Println("htmlhtml:", lTmplStr)
-		_, res_err = lTmpl.Parse(lTmplStr) // 分析
-		if res_err != nil {
-			//log.Println("X-Error:tmpl.Parse %s", res_err)
-			//http.Error(w, res_err.Error(), http.StatusInternalServerError)
-			//fmt.Fprintln(w, error)
-			return res_err
-		}
-
-		//log.Println("RenderToResponse:", template_name, lTmplStr)
-		// 为新的模板新建缓存系统
-		if self.Cacher[lName] == nil {
-			self.Cacher[lName] = memory.New()
-		}
-		//log.Println("New Template in cache is vaildable", tmpl)
-	}
-
-	// 合并模板变量
-	//data = utils.MergeMaps(self.VarMap, data)
-	res_err = lTmpl.Execute(w, data) // 绘制模板
-	if res_err != nil {
-		//http.Error(w, err.Error(), http.StatusInternalServerError)
-		return res_err
-	}
-
-	// 保留缓存
-	if self.Cacheable {
-		self.Cacher[lName].Set(&cacher.CacheBlock{Key: lName, Value: lTmpl})
-	}
-
-	return
-}
-
-func Escape(content string) string {
-	return template.HTMLEscapeString(content)
-}
 
 // 创建一个Template
 func NewTemplate(aName string) *TTemplate {
@@ -347,7 +114,8 @@ func (self *TTemplate) New(name, htmlstream string, langmap map[string]string) (
 		template: self,
 		parent:   nil,
 		lex:      xlexer,
-		silo:     []interface{}{}}
+		silo:     []interface{}{},
+	}
 
 	xtmpl := &TTemplate{Name: name,
 		parser:  xparser,
@@ -438,9 +206,23 @@ func (self *TTemplate) Render(context ...interface{}) string {
 		val := reflect.ValueOf(c)
 		contextChain = append(contextChain, val)
 	}
+
 	self.parser.renderTemplate(contextChain, &buf) // 返回渲染好的Html到Buf
-	//log.Println(buf.String())
 	return buf.String()
+}
+
+func (self *TTemplate) RenderToWriter(data map[string]interface{}, w io.Writer) error {
+	// 合并模板变量
+	err := self.template.Execute(w, data) // 绘制模板
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Escape(content string) string {
+	return template.HTMLEscapeString(content)
 }
 
 func FromString(template string) (res_html *TTemplateSet) {

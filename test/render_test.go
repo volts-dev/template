@@ -14,7 +14,7 @@ func TestRender(t *testing.T) {
 	BaseEngine := template.NewBaseEngine()
 
 	//lHtml, err := BaseEngine.RenderTemplate(nil, AppFilePath+"\\src\\base.html", nil)
-	lHtml, err := BaseEngine.RenderTemplate(nil, nil, "./src/base.html", nil)
+	lHtml, err := BaseEngine.RenderTemplate(nil, "./src/base.html", nil)
 	fmt.Println("Html", lHtml, err)
 
 }

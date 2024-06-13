@@ -2,6 +2,7 @@ package template
 
 import (
 	//	"fmt"
+	"fmt"
 	"strings"
 )
 
@@ -19,7 +20,7 @@ type (
 	}
 
 	IEngine interface {
-		RenderTemplate(template_set *TTemplateSet, loader ILoader, template string, context map[string]interface{}) (string, error)
+		RenderTemplate(loader ILoader, template string, context map[string]interface{}) (string, error)
 		TemplateSet() *TTemplateSet
 	}
 )
@@ -39,16 +40,14 @@ func RegisterEngine(name string, engine IEngine) {
 	template_engines[name] = engine
 }
 
-func NewEngine(name string) (engine IEngine) {
-	var has bool
-	if engine, has = template_engines[name]; !has || engine == nil {
-		//logger.Logger.Err("%s engine not available!", name)
-
-		if engine, has = template_engines["html"]; !has || engine == nil {
-			log.Err("%s engine not available!", name)
-			return nil //fmt.Errorf("%s engine not available!", name)
-		}
+func NewEngine(name string) (IEngine, error) {
+	if engine, has := template_engines[name]; has && engine != nil {
+		return engine, nil
 	}
 
-	return
+	if engine, has := template_engines["html"]; has && engine != nil {
+		return engine, nil
+	}
+
+	return nil, fmt.Errorf("%s engine not available!", name)
 }

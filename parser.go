@@ -439,8 +439,6 @@ func (self *Parser) parse() error {
 			*/
 		} //1 switch
 	}
-
-	return nil
 }
 
 /*
@@ -871,7 +869,7 @@ filterLoop:
 		}
 
 		// Check sandbox filter restriction
-		if _, isBanned := p.template.set.bannedFilters[filter.name]; isBanned {
+		if _, isBanned := p.template.Engine.TemplateSet().bannedFilters[filter.name]; isBanned {
 			return nil, p.Error(fmt.Sprintf("Usage of filter '%s' is not allowed (sandbox restriction active).", filter.name), nil)
 		}
 
@@ -1018,7 +1016,7 @@ func (p *Parser) parseTagElement() (INodeTag, *Error) {
 
 	// Check sandbox tag restriction
 	if p.template != nil {
-		if _, isBanned := p.template.set.bannedTags[tokenName.Val]; isBanned {
+		if _, isBanned := p.template.Engine.TemplateSet().bannedTags[tokenName.Val]; isBanned {
 			return nil, p.Error(fmt.Sprintf("Usage of tag '%s' is not allowed (sandbox restriction active).", tokenName.Val), tokenName)
 		}
 	}
